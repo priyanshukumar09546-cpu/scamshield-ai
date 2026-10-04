@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: scamshield-ai-backend
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: VIRUSTOTAL_API_KEY
+        sync: false
+      - key: GOOGLE_WEB_RISK_API_KEY
+        sync: false

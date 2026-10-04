@@ -9,7 +9,11 @@ AI-powered investor protection against digital financial scams, phishing and mis
 ![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748?style=for-the-badge&logo=prisma)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)
 ![Google Gemini](https://img.shields.io/badge/Google%20Gemini-Multimodal-4285F4?style=for-the-badge&logo=google)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Production-black?style=for-the-badge&logo=vercel)](https://iit-bhu-gamma.vercel.app)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
+> 🌐 **Live Web Application:** [https://iit-bhu-gamma.vercel.app](https://iit-bhu-gamma.vercel.app)  
+> 🛡️ **GitHub Repository:** [https://github.com/priyanshukumar09546-cpu/scamshield-ai](https://github.com/priyanshukumar09546-cpu/scamshield-ai)
 
 ---
 
