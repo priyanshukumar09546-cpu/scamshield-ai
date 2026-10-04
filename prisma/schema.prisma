@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  passwordHash String
+  name         String
+  role         String           @default("USER") // USER, ADMIN
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  analyses     AnalysisRecord[]
+  reports      Report[]
+  auditEvents  AuditEvent[]
+}
+
+model AnalysisRecord {
+  id                 String       @id @default(cuid())
+  userId             String?
+  user               User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  inputType          String       // TEXT, SCREENSHOT, URL, DOCUMENT, VOICE
+  sanitizedMetadata  String       // JSON string of non-PII metadata
+  riskScore          Int          // 0-100
+  riskLevel          String       // HIGH, MEDIUM, LOW, UNCERTAIN
+  confidence         Float        // 0.0 - 1.0
+  category           String       // e.g. "Investment Scam", "Phishing Link", etc.
+  explanation        String       // Explainable AI summary
+  uncertainty        String       // Explicit uncertainty statement
+  detectedRedFlags   String       // JSON array of strings
+  evidenceItems      String       // JSON array of signals/evidence
+  safeActions        String       // JSON array of recommended safety actions
+  trustedSources     String       // JSON array of cited official sources
+  threatIntelStatus  String       // JSON status of VirusTotal / Web Risk / DNS
+  language           String       @default("en")
+  processingTimeMs   Int          @default(0)
+  createdAt          DateTime     @default(now())
+  signals            RiskSignal[]
+  feedback           Feedback[]
+
+  @@index([userId])
+  @@index([riskLevel])
+  @@index([createdAt])
+}
+
+model RiskSignal {
+  id          String         @id @default(cuid())
+  analysisId  String
+  analysis    AnalysisRecord @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  signalCode  String         // e.g. "GUARANTEED_RETURN", "LOOKALIKE_DOMAIN"
+  severity    String         // CRITICAL, HIGH, MEDIUM, LOW
+  evidence    String
+  confidence  Float          // 0.0 - 1.0
+  source      String         // RULE_ENGINE, AI_AGENT, THREAT_INTEL, KNOWLEDGE_GRAPH, URL_SCAN
+  createdAt   DateTime       @default(now())
+
+  @@index([analysisId])
+}
+
+model Report {
+  id               String   @id @default(cuid())
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  reportType       String   // SCAM_MESSAGE, URL, IMPERSONATION, INVESTMENT_AD, SOCIAL_ACCOUNT, OTHER
+  targetIdentifier String   // URL, phone, handle, or domain
+  title            String
+  description      String
+  evidenceText     String?
+  status           String   @default("RECORDED") // RECORDED, UNDER_REVIEW, VERIFIED
+  createdAt        DateTime @default(now())
+
+  @@index([targetIdentifier])
+}
+
+model KnowledgeDocument {
+  id              String   @id @default(cuid())
+  title           String
+  publisher       String   // "SEBI", "RBI", "CERT-In", "National Cyber Crime Reporting Portal"
+  sourceUrl       String
+  publicationDate String?
+  category        String   // "INVESTMENT_SAFETY", "PHISHING_GUIDELINES", "DIGITAL_ARREST", "PAYMENT_FRAUD"
+  content         String
+  summary         String
+  tags            String   // Comma separated keywords
+  createdAt       DateTime @default(now())
+
+  @@index([category])
+  @@index([publisher])
+}
+
+model ScamEntity {
+  id              String             @id @default(cuid())
+  entityType      String             // DOMAIN, ORGANIZATION, PHONE, EMAIL, SCAM_PATTERN, CLAIM
+  value           String             @unique
+  normalizedValue String
+  riskLevel       String             // HIGH, MEDIUM, SUSPICIOUS, UNVERIFIED
+  flagCount       Int                @default(1)
+  firstSeen       DateTime           @default(now())
+  lastSeen        DateTime           @default(now())
+  outRelations    ScamRelationship[] @relation("SourceEntity")
+  inRelations     ScamRelationship[] @relation("TargetEntity")
+
+  @@index([normalizedValue])
+  @@index([entityType])
+}
+
+model ScamRelationship {
+  id           String     @id @default(cuid())
+  sourceId     String
+  targetId     String
+  source       ScamEntity @relation("SourceEntity", fields: [sourceId], references: [id], onDelete: Cascade)
+  target       ScamEntity @relation("TargetEntity", fields: [targetId], references: [id], onDelete: Cascade)
+  relationType String     // IMPERSONATES, CONTAINS, REFERENCES, ASSOCIATED_WITH
+  confidence   Float      @default(0.8)
+  evidence     String
+  createdAt    DateTime   @default(now())
+
+  @@unique([sourceId, targetId, relationType])
+}
+
+model Feedback {
+  id           String         @id @default(cuid())
+  analysisId   String
+  analysis     AnalysisRecord @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  isHelpful    Boolean
+  comment      String?
+  createdAt    DateTime       @default(now())
+}
+
+model AuditEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String   // e.g. "AUTH_LOGIN", "ANALYSIS_RUN", "REPORT_FILED", "PII_REDACTED"
+  ipHash    String?
+  details   String?  // JSON string
+  createdAt DateTime @default(now())
+
+  @@index([action])
+  @@index([createdAt])
+}
