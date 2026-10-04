@@ -24,6 +24,8 @@ export interface AnalysisResponseData {
   createdAt: string;
 }
 
+export type AnalysisResult = AnalysisResponseData;
+
 export async function processAndSaveAnalysis(
   rawInput: string,
   inputType: OrchestratorInput['inputType'],

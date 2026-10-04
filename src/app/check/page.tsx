@@ -27,6 +27,8 @@ import {
   HelpCircle,
   Copy,
   Check,
+  Download,
+  Loader2,
 } from 'lucide-react';
 
 type TabKey = 'screenshot' | 'text' | 'url' | 'document' | 'voice';
@@ -279,6 +281,23 @@ Authoritative citations: sebi.gov.in / rbi.org.in / cybercrime.gov.in (1930)`;
     navigator.clipboard.writeText(reportText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const [downloadState, setDownloadState] = useState<'idle' | 'generating' | 'downloaded' | 'error'>('idle');
+
+  const handleDownloadReport = async () => {
+    if (!result) return;
+    setDownloadState('generating');
+    try {
+      const { generateScamShieldPDF } = await import('@/lib/pdf-generator');
+      generateScamShieldPDF(result);
+      setDownloadState('downloaded');
+      setTimeout(() => setDownloadState('idle'), 3000);
+    } catch (err) {
+      console.error('Failed to generate PDF report:', err);
+      setDownloadState('error');
+      setTimeout(() => setDownloadState('idle'), 4000);
+    }
   };
 
   return (
@@ -566,13 +585,38 @@ Authoritative citations: sebi.gov.in / rbi.org.in / cybercrime.gov.in (1930)`;
               </p>
             </div>
 
-            {/* Language Switcher for Assessment */}
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-foreground">View Explanation in:</span>
+            {/* Actions & Language Switcher for Assessment */}
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={handleDownloadReport}
+                disabled={downloadState === 'generating'}
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs sm:text-sm font-bold transition-all shadow-sm ${
+                  downloadState === 'downloaded'
+                    ? 'bg-emerald-600 text-white'
+                    : downloadState === 'error'
+                    ? 'bg-red-700 text-white'
+                    : 'bg-cyan-600 hover:bg-cyan-500 text-white'
+                }`}
+              >
+                {downloadState === 'generating' && <Loader2 className="h-4 w-4 animate-spin" />}
+                {downloadState === 'downloaded' && <Check className="h-4 w-4 text-white" />}
+                {downloadState === 'error' && <AlertTriangle className="h-4 w-4 text-white" />}
+                {downloadState === 'idle' && <Download className="h-4 w-4" />}
+                <span>
+                  {downloadState === 'generating'
+                    ? 'Generating...'
+                    : downloadState === 'downloaded'
+                    ? 'Report Downloaded'
+                    : downloadState === 'error'
+                    ? 'Unable to Generate'
+                    : 'Download Report'}
+                </span>
+              </button>
+
               <div className="inline-flex rounded-xl border border-border bg-background p-1 text-sm">
                 <button
                   onClick={() => setResultLang('en')}
-                  className={`rounded-lg px-3 py-1.5 font-semibold transition-colors ${
+                  className={`rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-semibold transition-colors ${
                     resultLang === 'en' ? 'bg-blue-600 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
@@ -580,15 +624,15 @@ Authoritative citations: sebi.gov.in / rbi.org.in / cybercrime.gov.in (1930)`;
                 </button>
                 <button
                   onClick={() => setResultLang('hi')}
-                  className={`rounded-lg px-3 py-1.5 font-semibold transition-colors ${
+                  className={`rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-semibold transition-colors ${
                     resultLang === 'hi' ? 'bg-blue-600 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  हिंदी (Hindi)
+                  हिंदी
                 </button>
                 <button
                   onClick={() => setResultLang('hinglish')}
-                  className={`rounded-lg px-3 py-1.5 font-semibold transition-colors ${
+                  className={`rounded-lg px-2.5 py-1.5 text-xs sm:text-sm font-semibold transition-colors ${
                     resultLang === 'hinglish' ? 'bg-blue-600 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
@@ -849,13 +893,41 @@ Authoritative citations: sebi.gov.in / rbi.org.in / cybercrime.gov.in (1930)`;
 
           {/* Action Bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-border">
-            <button
-              onClick={handleCopyReport}
-              className="flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted/80 transition-colors"
-            >
-              {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
-              <span>{copied ? 'Assessment Copied!' : t.actions.copyReport}</span>
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={handleDownloadReport}
+                disabled={downloadState === 'generating'}
+                className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all shadow-md ${
+                  downloadState === 'downloaded'
+                    ? 'bg-emerald-600 text-white'
+                    : downloadState === 'error'
+                    ? 'bg-red-700 text-white'
+                    : 'bg-cyan-600 hover:bg-cyan-500 text-white'
+                }`}
+              >
+                {downloadState === 'generating' && <Loader2 className="h-4 w-4 animate-spin" />}
+                {downloadState === 'downloaded' && <Check className="h-4 w-4 text-white" />}
+                {downloadState === 'error' && <AlertTriangle className="h-4 w-4 text-white" />}
+                {downloadState === 'idle' && <Download className="h-4 w-4" />}
+                <span>
+                  {downloadState === 'generating'
+                    ? 'Generating Report...'
+                    : downloadState === 'downloaded'
+                    ? 'Report Downloaded'
+                    : downloadState === 'error'
+                    ? 'Unable to Generate Report'
+                    : 'Download Report'}
+                </span>
+              </button>
+
+              <button
+                onClick={handleCopyReport}
+                className="flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted/80 transition-colors"
+              >
+                {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                <span>{copied ? 'Assessment Copied!' : t.actions.copyReport}</span>
+              </button>
+            </div>
 
             <a
               href={`/report?identifier=${encodeURIComponent(urlInput || result.id)}&title=${encodeURIComponent(result.category)}`}
