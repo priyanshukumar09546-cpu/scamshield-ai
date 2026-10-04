@@ -29,7 +29,8 @@ export const FINANCIAL_SAFETY_RULES: RuleDefinition[] = [
     category: 'INVESTMENT_FRAUD',
     defaultConfidence: 0.95,
     patterns: [
-      /\b(?:100%|guaranteed|assured|risk[- ]?free|fixed)\s+(?:daily|monthly|weekly|annual|returns?|profit|income|payout)\b/gi,
+      /\b(?:100%|guaranteed|assured|risk[- ]?free|fixed)\s+(?:(?:rs\.?|inr|₹)?\s*[\d,]+\s+)?(?:daily|monthly|weekly|annual|returns?|profit|income|payout)\b/gi,
+      /\b(?:guaranteed|assured)\s+(?:[\w₹,]+\s+){0,3}(?:returns?|profit|income|payout)\b/gi,
       /\b(?:returns?|profit)\s+(?:is|are)?\s*(?:100%|guaranteed|assured|100%\s*sure)\b/gi,
       /\b(?:pucka|pakka|sure shot)\s+(?:return|profit|gain)\b/gi,
     ],
@@ -43,7 +44,8 @@ export const FINANCIAL_SAFETY_RULES: RuleDefinition[] = [
     defaultConfidence: 0.92,
     patterns: [
       /\b(?:double|triple|2x|3x|5x|10x|100x)\s+(?:your\s+)?(?:money|capital|investment|cash)\b/gi,
-      /\b(?:invest\s+(?:rs\.?|inr|₹)?\s*\d+.*(?:get|earn)\s+(?:rs\.?|inr|₹)?\s*\d+)\b/gi,
+      /\b(?:invest\s+(?:rs\.?|inr|₹)?\s*[\d,]+.*(?:get|earn)\s+(?:rs\.?|inr|₹)?\s*[\d,]+)\b/gi,
+      /\b(?:(?:rs\.?|inr|₹)?\s*[\d,]+\s+returns?\s+(?:from|on|for)\s+(?:rs\.?|inr|₹)?\s*[\d,]+)\b/gi,
       /\b(?:earn|profit|return\s*of)\s*(?:[3-9]\d|\d{3,})%\s*(?:daily|weekly|per\s*day|monthly)\b/gi,
     ],
     extractEvidence: (match) => `Unrealistic return multiplier: "${match[0]}"`,
@@ -79,7 +81,7 @@ export const FINANCIAL_SAFETY_RULES: RuleDefinition[] = [
     category: 'SOCIAL_ENGINEERING',
     defaultConfidence: 0.88,
     patterns: [
-      /\b(?:act\s*now|hurry\s*up|only\s*\d+\s*(?:slots?|minutes?|hours?)\s*left|expires\s*(?:in|today|now))\b/gi,
+      /\b(?:act\s*now|hurry\s*up|limited\s*time|only\s*\d+\s*(?:slots?|minutes?|hours?)\s*left|expires\s*(?:in|today|now))\b/gi,
       /\b(?:transfer|deposit|pay)\s*(?:immediately|urgent|right\s*now|within\s*\d+\s*(?:mins?|hours?))\b/gi,
       /\b(?:last\s*chance\s*to\s*invest|offer\s*closing\s*soon)\b/gi,
     ],
