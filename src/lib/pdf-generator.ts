@@ -158,6 +158,69 @@ export function generateScamShieldPDF(data: AnalysisResult): void {
   currentY = (doc as any).lastAutoTable.finalY + 8;
 
   // Check page overflow
+  if (currentY > pageHeight - 55) {
+    doc.addPage();
+    currentY = 20;
+  }
+
+  // ==================== OFFICIAL REGULATORY VERIFICATION ====================
+  if (data.officialVerification && data.officialVerification.claims && data.officialVerification.claims.length > 0) {
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.text('3. OFFICIAL REGULATORY VERIFICATION (SEBI / RBI / GOVT AUTHORITIES)', margin, currentY);
+    currentY += 4;
+
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text('Statutory evidence cross-referenced against authoritative registries. Distinct from AI heuristic signals.', margin, currentY);
+    currentY += 3;
+
+    const verificationRows = data.officialVerification.claims.map((c: any) => [
+      c.statusLabel || c.status,
+      c.normalizedEntity || c.claimedText,
+      c.officialSource || 'Official Registry',
+      c.evidenceDetails?.en || c.evidenceDetails || 'Verified against statutory records.',
+    ]);
+
+    autoTable(doc, {
+      startY: currentY,
+      head: [['Status', 'Entity / Claim', 'Official Authority / Source', 'Verification Evidence']],
+      body: verificationRows,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [30, 41, 59],
+        textColor: [255, 255, 255],
+        fontSize: 8,
+        fontStyle: 'bold',
+      },
+      columnStyles: {
+        0: { cellWidth: 26, fontStyle: 'bold' },
+        1: { cellWidth: 42, fontStyle: 'bold' },
+        2: { cellWidth: 42 },
+        3: { cellWidth: 'auto' },
+      },
+      styles: {
+        fontSize: 7.5,
+        cellPadding: 2.2,
+        overflow: 'linebreak',
+      },
+      didParseCell: (hookData) => {
+        if (hookData.section === 'body' && hookData.column.index === 0) {
+          const val = String(hookData.cell.raw).toUpperCase();
+          if (val.includes('MISMATCH')) hookData.cell.styles.textColor = [220, 38, 38];
+          else if (val.includes('VERIFIED')) hookData.cell.styles.textColor = [22, 163, 74];
+          else hookData.cell.styles.textColor = [202, 138, 4];
+        }
+      },
+      margin: { left: margin, right: margin },
+    });
+
+    currentY = (doc as any).lastAutoTable.finalY + 8;
+  }
+
+  // Check page overflow
   if (currentY > pageHeight - 50) {
     doc.addPage();
     currentY = 20;
@@ -167,7 +230,7 @@ export function generateScamShieldPDF(data: AnalysisResult): void {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.setTextColor(15, 23, 42);
-  doc.text('3. AUTHORITATIVE REGULATORY CITATIONS & RAG GROUNDING', margin, currentY);
+  doc.text('4. AUTHORITATIVE REGULATORY CITATIONS & RAG GROUNDING', margin, currentY);
   currentY += 2;
 
   const ragRows = (data.trustedSources && data.trustedSources.length > 0)
@@ -226,7 +289,7 @@ export function generateScamShieldPDF(data: AnalysisResult): void {
         'Never share OTPs, UPI PINs, passwords, or banking credentials with anyone.',
         'Do NOT install remote desktop applications (AnyDesk, TeamViewer, QuickSupport).',
         'Verify entity registration directly on official portal: sebi.gov.in or sachet.rbi.org.in.',
-        'In case of financial fraud, immediately dial 1930 to freeze funds within the Golden Hour.'
+        'In case of financial fraud, contact 1930 immediately for financial cyber-fraud assistance within the Golden Hour.'
       ];
 
   actions.forEach((act, idx) => {

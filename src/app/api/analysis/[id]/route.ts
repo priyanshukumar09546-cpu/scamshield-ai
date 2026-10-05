@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { officialVerificationEngine } from '@/lib/official-verification';
 
 export async function GET(
   req: NextRequest,
@@ -15,6 +16,16 @@ export async function GET(
       return NextResponse.json({ error: 'Analysis record not found.' }, { status: 404 });
     }
 
+    const detectedRedFlags = JSON.parse(record.detectedRedFlags || '[]');
+    const evidenceItems = JSON.parse(record.evidenceItems || '[]');
+    const safeActions = JSON.parse(record.safeActions || '[]');
+    const trustedSources = JSON.parse(record.trustedSources || '[]');
+    const threatIntelSummary = JSON.parse(record.threatIntelStatus || '{}');
+
+    // Run official verification engine on stored evidence and explanation
+    const combinedContent = `${record.explanation} ${detectedRedFlags.join(' ')} ${evidenceItems.map((e: any) => e.details || '').join(' ')}`;
+    const officialVerification = officialVerificationEngine.verifyContent(combinedContent);
+
     return NextResponse.json({
       id: record.id,
       inputType: record.inputType,
@@ -24,11 +35,12 @@ export async function GET(
       category: record.category,
       explanation: record.explanation,
       uncertainty: record.uncertainty,
-      detectedRedFlags: JSON.parse(record.detectedRedFlags || '[]'),
-      evidenceItems: JSON.parse(record.evidenceItems || '[]'),
-      safeActions: JSON.parse(record.safeActions || '[]'),
-      trustedSources: JSON.parse(record.trustedSources || '[]'),
-      threatIntelSummary: JSON.parse(record.threatIntelStatus || '{}'),
+      detectedRedFlags,
+      evidenceItems,
+      safeActions,
+      trustedSources,
+      officialVerification,
+      threatIntelSummary,
       signals: record.signals,
       processingTimeMs: record.processingTimeMs,
       createdAt: record.createdAt.toISOString(),

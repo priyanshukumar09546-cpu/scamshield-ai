@@ -29,6 +29,9 @@ import {
   Check,
   Download,
   Loader2,
+  XCircle,
+  PhoneCall,
+  Landmark,
 } from 'lucide-react';
 
 type TabKey = 'screenshot' | 'text' | 'url' | 'document' | 'voice';
@@ -91,6 +94,7 @@ function CheckContent() {
       const tr = translateExplanation(
         result.explanation,
         result.detectedRedFlags || [],
+        result.evidenceItems || [],
         result.safeActions || [],
         result.uncertainty,
         resultLang
@@ -258,6 +262,9 @@ function CheckContent() {
       }
 
       setResult(data);
+      if (data.detectedLanguage && data.detectedLanguage !== 'en') {
+        setResultLang(data.detectedLanguage);
+      }
     } catch (err: any) {
       setErrorMsg(err.message || 'An error occurred during analysis.');
     } finally {
@@ -756,14 +763,23 @@ Authoritative citations: sebi.gov.in / rbi.org.in / cybercrime.gov.in (1930)`;
             </div>
 
             {/* Evidence & Signals List */}
-            {result.evidenceItems && result.evidenceItems.length > 0 && (
+            {((translatedResult?.evidenceItems && translatedResult.evidenceItems.length > 0) ? translatedResult.evidenceItems : result.evidenceItems) && (
               <div className="mb-8">
                 <h4 className="text-sm sm:text-[15px] font-bold uppercase tracking-wider text-foreground mb-4 flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-                  <span>Verified Signals & Evidence</span>
+                  <span>
+                    {resultLang === 'hi'
+                      ? 'प्रमाण एवं सत्यापित संकेत (Signals & Evidence)'
+                      : resultLang === 'hinglish'
+                      ? 'Verified Signals & Evidence'
+                      : 'Verified Signals & Evidence'}
+                  </span>
                 </h4>
                 <div className="space-y-3">
-                  {result.evidenceItems.map((item: any, idx: number) => (
+                  {((translatedResult?.evidenceItems && translatedResult.evidenceItems.length > 0)
+                    ? translatedResult.evidenceItems
+                    : result.evidenceItems
+                  ).map((item: any, idx: number) => (
                     <div key={idx} className="rounded-xl border border-border bg-background/50 p-4 text-sm sm:text-base">
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="font-bold text-foreground text-sm sm:text-base">{item.title}</span>
@@ -798,6 +814,247 @@ Authoritative citations: sebi.gov.in / rbi.org.in / cybercrime.gov.in (1930)`;
             <div className="rounded-xl border border-border/80 bg-background/40 p-4 text-xs sm:text-sm text-muted-foreground leading-relaxed">
               <span className="font-bold text-foreground">Technical Scope & Uncertainty: </span>
               <span>{translatedResult?.uncertainty || result.uncertainty}</span>
+            </div>
+          </div>
+
+          {/* Section: Official Regulatory Verification (Requirement 1: SEBI, RBI, Banking, Govt claims) */}
+          <div className="rounded-2xl border border-border/90 bg-card/90 p-6 sm:p-8 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-5 mb-6">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30">
+                    <Landmark className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-black text-foreground tracking-tight">
+                      Official Regulatory Verification
+                    </h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Authoritative cross-referencing against SEBI, RBI & National Cyber Crime Reporting Portal
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status counter pills */}
+              <div className="flex flex-wrap items-center gap-2">
+                {result.officialVerification?.mismatchCount ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/40 bg-red-950/40 px-3 py-1 text-xs sm:text-sm font-bold text-red-300">
+                    <XCircle className="h-4 w-4 text-red-400" />
+                    <span>{result.officialVerification.mismatchCount} Mismatch</span>
+                  </span>
+                ) : null}
+                {result.officialVerification?.verifiedCount ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-950/40 px-3 py-1 text-xs sm:text-sm font-bold text-emerald-300">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    <span>{result.officialVerification.verifiedCount} Verified</span>
+                  </span>
+                ) : null}
+                {result.officialVerification?.unableToVerifyCount ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-950/40 px-3 py-1 text-xs sm:text-sm font-bold text-amber-300">
+                    <HelpCircle className="h-4 w-4 text-amber-400" />
+                    <span>{result.officialVerification.unableToVerifyCount} Unable to Verify</span>
+                  </span>
+                ) : null}
+              </div>
+            </div>
+
+            {/* Clear distinction notice: AI risk signals vs Official Verification Evidence */}
+            <div className="mb-6 rounded-xl border border-blue-500/30 bg-blue-950/20 p-4 text-xs sm:text-sm text-foreground/80 leading-relaxed flex items-start gap-3">
+              <Info className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-blue-300 font-semibold block mb-0.5">Authoritative Evidence Distinction:</strong>
+                <span>
+                  {result.officialVerification?.distinctionNote?.[resultLang] ||
+                    result.officialVerification?.distinctionNote?.en ||
+                    'Official verification evidence is factually verified against statutory regulations and public registries. ScamShield AI never classifies content as a scam solely on AI opinion; AI risk signals and official verification evidence are strictly separated.'}
+                </span>
+              </div>
+            </div>
+
+            {/* Detected Claims List */}
+            {result.officialVerification?.claims && result.officialVerification.claims.length > 0 ? (
+              <div className="space-y-4">
+                {result.officialVerification.claims.map((claim: any) => (
+                  <div
+                    key={claim.id}
+                    className={`rounded-2xl border p-5 transition-all ${
+                      claim.status === 'MISMATCH'
+                        ? 'border-red-500/40 bg-red-950/20'
+                        : claim.status === 'VERIFIED'
+                        ? 'border-emerald-500/40 bg-emerald-950/20'
+                        : 'border-amber-500/40 bg-amber-950/20'
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1 text-xs sm:text-sm font-extrabold uppercase tracking-wide ${
+                            claim.status === 'MISMATCH'
+                              ? 'bg-red-500/30 text-red-300 border border-red-500/50'
+                              : claim.status === 'VERIFIED'
+                              ? 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/50'
+                              : 'bg-amber-500/30 text-amber-300 border border-amber-500/50'
+                          }`}
+                        >
+                          {claim.status === 'MISMATCH' && <XCircle className="h-4 w-4" />}
+                          {claim.status === 'VERIFIED' && <CheckCircle2 className="h-4 w-4" />}
+                          {claim.status === 'UNABLE_TO_VERIFY' && <HelpCircle className="h-4 w-4" />}
+                          <span>{claim.statusLabel}</span>
+                        </span>
+                        <span className="font-bold text-foreground text-sm sm:text-base">
+                          {claim.normalizedEntity}
+                        </span>
+                      </div>
+
+                      <span className="text-xs font-semibold rounded-lg bg-background/80 px-2.5 py-1 text-muted-foreground border border-border self-start sm:self-auto">
+                        {claim.claimType.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+
+                    <p className="text-sm sm:text-[15px] text-foreground/90 leading-relaxed mb-3">
+                      {claim.evidenceDetails?.[resultLang] || claim.evidenceDetails?.en || claim.evidenceDetails}
+                    </p>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/60 text-xs sm:text-sm text-muted-foreground">
+                      <span className="font-medium text-foreground/75">
+                        Official Authority: <strong className="text-blue-400">{claim.officialSource}</strong>
+                      </span>
+                      {claim.officialSourceUrl && (
+                        <a
+                          href={claim.officialSourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-blue-400 hover:underline font-semibold"
+                        >
+                          <span>Verify on Official Portal</span>
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-border/80 bg-background/50 p-5 text-center text-sm text-muted-foreground">
+                <p>No explicit regulatory registration numbers, SEBI/RBI claims, or bank entity names were detected in this submission.</p>
+                <p className="text-xs mt-1">Analysis is evaluated on behavioral heuristics, NLP risk signals, and network threat intelligence.</p>
+              </div>
+            )}
+          </div>
+
+          {/* Section: Post-Scam Recovery (Requirement 3: “Already Paid or Shared Information?”) */}
+          <div className="rounded-2xl border border-amber-500/40 bg-amber-950/20 p-6 sm:p-8 shadow-xl space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-amber-500/30 pb-5">
+              <div className="flex items-start sm:items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/40 shrink-0">
+                  <AlertTriangle className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-xl font-extrabold text-amber-300">
+                    {translatedResult?.recoveryGuidance?.title || 'Already Paid or Shared Information?'}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-amber-200/80 mt-0.5 font-medium">
+                    {translatedResult?.recoveryGuidance?.subtitle || 'If YES — Immediate Incident Recovery Steps:'}
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href="tel:1930"
+                className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2.5 text-sm shadow-md transition-all self-start sm:self-auto shrink-0"
+              >
+                <PhoneCall className="h-4 w-4" />
+                <span>Call 1930 Helpline</span>
+              </a>
+            </div>
+
+            {/* 5 Specific Guidance Steps */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {(translatedResult?.recoveryGuidance?.steps || [
+                {
+                  stepNumber: 1,
+                  actionTitle: 'Contact your bank/payment provider immediately',
+                  actionDetail: 'Request an immediate stop-payment or freeze on the affected card, account, or UPI ID to prevent further unauthorized debits.',
+                  badgeText: 'CRITICAL — FIRST 60 MINS',
+                },
+                {
+                  stepNumber: 2,
+                  actionTitle: 'Call 1930 for financial cyber-fraud assistance',
+                  actionDetail: 'Dial the National Cybercrime Reporting toll-free helpline 1930 immediately to log an emergency incident in the CFCFRMS system.',
+                  badgeText: 'TOLL-FREE 24x7',
+                },
+                {
+                  stepNumber: 3,
+                  actionTitle: 'Preserve transaction IDs, screenshots, chats and URLs',
+                  actionDetail: 'Save unedited screenshots of conversations, payment receipts, UTR numbers, account numbers, sender handles, and website links as legal evidence.',
+                },
+                {
+                  stepNumber: 4,
+                  actionTitle: 'Report the incident through official cyber-crime channel',
+                  actionDetail: 'Submit a formal statutory complaint on the official national portal at cybercrime.gov.in with all preserved digital artifacts.',
+                },
+                {
+                  stepNumber: 5,
+                  actionTitle: 'Never share OTP/PIN/password with recovery agents',
+                  actionDetail: 'Beware of recovery scams. Genuine police, banks, and legal authorities NEVER ask for OTPs, passwords, or upfront recovery fees.',
+                  badgeText: 'AVOID SECONDARY FRAUD',
+                },
+              ]).map((step: any) => (
+                <div
+                  key={step.stepNumber}
+                  className="rounded-xl border border-amber-500/25 bg-background/70 p-4 space-y-1.5 shadow-sm"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-bold text-amber-300 text-sm sm:text-base flex items-center gap-2">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-xs font-black text-amber-400">
+                        {step.stepNumber}
+                      </span>
+                      <span>{step.actionTitle}</span>
+                    </span>
+                    {step.badgeText && (
+                      <span className="text-[10px] font-black uppercase tracking-wider rounded-md bg-amber-500/20 text-amber-300 px-2 py-0.5 shrink-0">
+                        {step.badgeText}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed pl-7">
+                    {step.actionDetail}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Crucial Statutory Recovery Disclaimer */}
+            <div className="rounded-xl border border-border/80 bg-background/70 p-4 text-xs sm:text-sm text-foreground/80 leading-relaxed flex items-start gap-3">
+              <Info className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <strong className="text-amber-300 font-semibold block mb-0.5">Critical Recovery Notice:</strong>
+                <span>
+                  {translatedResult?.recoveryGuidance?.disclaimer ||
+                    'Do NOT trust anyone promising that money will definitely be recovered or frozen. Fund recovery depends on banking cooperation, inter-bank settlement status, and rapid reporting; no automated platform or third party can guarantee return of funds.'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+              <a
+                href="https://cybercrime.gov.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl bg-blue-600/30 border border-blue-500/40 px-4 py-2 text-xs sm:text-sm font-bold text-blue-300 hover:bg-blue-600/50 transition-colors"
+              >
+                <span>National Cyber Crime Portal (cybercrime.gov.in)</span>
+                <ExternalLink className="h-4 w-4" />
+              </a>
+
+              <a
+                href="tel:1930"
+                className="inline-flex items-center gap-2 rounded-xl bg-red-600/30 border border-red-500/40 px-4 py-2 text-xs sm:text-sm font-bold text-red-300 hover:bg-red-600/50 transition-colors"
+              >
+                <PhoneCall className="h-4 w-4" />
+                <span>Dial 1930 Helpline (Citizen Financial Fraud)</span>
+              </a>
             </div>
           </div>
 

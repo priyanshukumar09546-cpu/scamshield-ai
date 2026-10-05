@@ -61,8 +61,8 @@ export const AUTHORITATIVE_KNOWLEDGE_BASE: Array<Omit<TrustedSourceItem, 'releva
     sourceUrl: 'https://cybercrime.gov.in/',
     publicationDate: '2024-01-15',
     category: 'INCIDENT_RESPONSE',
-    summary: 'In case of fraudulent transaction, immediate reporting within the golden hour to National Cyber Crime Helpline 1930 or cybercrime.gov.in can trigger the Citizen Financial Cyber Fraud Reporting and Management System (CFCFRMS) to freeze stolen funds in intermediary bank accounts.',
-    tags: ['1930', 'cybercrime.gov.in', 'golden hour', 'freeze account', 'police report', 'digital arrest'],
+    summary: 'In case of fraudulent transaction, immediate reporting within the golden hour to National Cyber Crime Helpline 1930 or cybercrime.gov.in can trigger the Citizen Financial Cyber Fraud Reporting and Management System (CFCFRMS) to assist in alerting beneficiary banks and halting fraudulent fund movements.',
+    tags: ['1930', 'cybercrime.gov.in', 'golden hour', 'halt transaction', 'police report', 'digital arrest'],
   },
   {
     id: 'CERT-IN-2024-11',

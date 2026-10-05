@@ -4,6 +4,9 @@ import { orchestrator, OrchestratorInput } from './ai/orchestrator';
 import { riskFusionEngine, FusionResult } from './risk-fusion';
 import { getCurrentUser } from './auth';
 
+import { OfficialVerificationResult } from './official-verification';
+import { detectLanguage } from './ai/agents/language';
+
 export interface AnalysisResponseData {
   id: string;
   inputType: string;
@@ -17,6 +20,8 @@ export interface AnalysisResponseData {
   evidenceItems: any[];
   safeActions: string[];
   trustedSources: any[];
+  officialVerification?: OfficialVerificationResult;
+  detectedLanguage?: 'en' | 'hi' | 'hinglish';
   threatIntelSummary: any;
   pipelineStages: any[];
   piiRedacted: boolean;
@@ -36,12 +41,14 @@ export async function processAndSaveAnalysis(
   // 1. PII Redaction
   const piiResult = detectAndRedactPII(rawInput);
   const cleanContent = piiResult.redactedText;
+  const detectedLanguage = detectLanguage(rawInput);
 
   // 2. Multi-Agent Orchestration
   const orchResult = await orchestrator.orchestrate({
     inputType,
     content: cleanContent,
     sourceUrl,
+    language: detectedLanguage,
   });
 
   // 3. Risk Fusion
@@ -75,7 +82,7 @@ export async function processAndSaveAnalysis(
         safeActions: JSON.stringify(fusionResult.safeActions),
         trustedSources: JSON.stringify(fusionResult.trustedSources),
         threatIntelStatus: JSON.stringify(fusionResult.threatIntelSummary),
-        language: 'en',
+        language: detectedLanguage,
         processingTimeMs,
       },
     });
@@ -124,6 +131,8 @@ export async function processAndSaveAnalysis(
     evidenceItems: fusionResult.evidenceItems,
     safeActions: fusionResult.safeActions,
     trustedSources: fusionResult.trustedSources,
+    officialVerification: fusionResult.officialVerification,
+    detectedLanguage,
     threatIntelSummary: fusionResult.threatIntelSummary,
     pipelineStages: orchResult.pipelineStages,
     piiRedacted: piiResult.hasPII,

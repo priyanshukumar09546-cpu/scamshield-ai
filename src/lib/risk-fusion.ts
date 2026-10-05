@@ -1,4 +1,5 @@
 import { OrchestrationResult } from './ai/orchestrator';
+import { OfficialVerificationResult } from './official-verification';
 
 export type RiskLevel = 'HIGH' | 'MEDIUM' | 'LOW' | 'UNCERTAIN';
 
@@ -32,6 +33,7 @@ export interface FusionResult {
   explanation: string;
   uncertainty: string;
   trustedSources: any[];
+  officialVerification?: OfficialVerificationResult;
   threatIntelSummary: {
     virusTotalStatus: string;
     googleWebRiskStatus: string;
@@ -179,6 +181,7 @@ export class RiskFusionEngine {
       explanation: orch.explanation.summaryExplanation,
       uncertainty: orch.explanation.uncertaintyStatement,
       trustedSources: orch.ragSources,
+      officialVerification: orch.officialVerification,
       threatIntelSummary: {
         virusTotalStatus: orch.urlAnalyses[0]?.threatIntel?.virusTotal?.status || 'NOT_CONFIGURED',
         googleWebRiskStatus: orch.urlAnalyses[0]?.threatIntel?.googleWebRisk?.status || 'NOT_CONFIGURED',

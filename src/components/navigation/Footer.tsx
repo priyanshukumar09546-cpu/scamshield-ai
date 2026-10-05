@@ -31,7 +31,7 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-2 text-sm text-emerald-400 font-medium">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>All Intelligence Systems Operational</span>
+              <span>Safety & Verification Systems Active</span>
             </div>
           </div>
 
@@ -71,7 +71,7 @@ export default function Footer() {
                 <span>National Helpline: 1930</span>
               </div>
               <p className="text-sm leading-relaxed text-red-200/90">
-                Victims of financial cyber fraud should immediately dial 1930 to freeze stolen funds within the critical golden hour.
+                Contact 1930 immediately for financial cyber-fraud assistance and transaction alert routing within the critical golden hour.
               </p>
             </div>
           </div>

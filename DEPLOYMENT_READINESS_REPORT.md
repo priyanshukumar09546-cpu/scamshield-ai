@@ -246,12 +246,11 @@ Expected output:
 ### 16. Verified Live Deployments & Release
 
 - **GitHub Repository:** [https://github.com/priyanshukumar09546-cpu/scamshield-ai](https://github.com/priyanshukumar09546-cpu/scamshield-ai)
-- **Live Vercel Production URL:** [https://iit-bhu-gamma.vercel.app](https://iit-bhu-gamma.vercel.app)
-  - Direct Deploy URL: [https://iit-10m8d1b83-priyanshukumar09546-cpus-projects.vercel.app](https://iit-10m8d1b83-priyanshukumar09546-cpus-projects.vercel.app)
+- **Live Vercel Production URL:** [https://scamshield-ai-official.vercel.app](https://scamshield-ai-official.vercel.app)
   - Status: 🟢 **LIVE & OPERATIONAL** (All 29 routes returning `200 OK`)
-  - Health check: `https://iit-bhu-gamma.vercel.app/health` returns `{"status": "ok"}`
+  - Health check: `https://scamshield-ai-official.vercel.app/health` returns `{"status": "ok"}`
   - API Verification: `POST /api/analyze/text` executed live with authentic scam prompt, returning `Risk Score: 82 (HIGH RISK)`.
-- **Render Backend Blueprint:** [render.yaml](file:///c:/Users/ASUS/OneDrive/Desktop/iit-bhu/render.yaml) provisioned for zero-configuration Render Web Service with automated healthcheck at `/health`.
+- **Render Backend Blueprint:** [render.yaml](render.yaml) provisioned for zero-configuration Render Web Service with automated healthcheck at `/health`.
 - **Download PDF Audit Report:** 🟢 **FULLY IMPLEMENTED & TESTED**
   - Integrated directly into Detection Result page (`/check`).
   - Dynamic multi-page A4 vector PDF powered by `jspdf` and `jspdf-autotable`.
@@ -267,4 +266,4 @@ Expected output:
 
 **Verdict:** 🟢 **DEPLOYED & OPERATIONAL**
 
-**Technical Justification:** The full-stack platform is actively deployed and operational on Vercel at `https://iit-bhu-gamma.vercel.app`. All core features (multimodal input, deterministic rules, RAG regulatory grounding, multi-agent fusion, downloadable PDF fraud reports, and mobile layouts) are fully verified and functioning without errors. Cloud LLM inference (Gemini) operates in high-resilience deterministic mode until a cloud `GEMINI_API_KEY` is injected.
+**Technical Justification:** The full-stack platform is actively deployed and operational on Vercel at `https://scamshield-ai-official.vercel.app`. All core features (multimodal input, deterministic rules, RAG regulatory grounding, multi-agent fusion, downloadable PDF fraud reports, and mobile layouts) are fully verified and functioning without errors. Cloud LLM inference (Gemini) operates in high-resilience deterministic mode until a cloud `GEMINI_API_KEY` is injected.

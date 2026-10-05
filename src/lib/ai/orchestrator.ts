@@ -8,6 +8,7 @@ import { runPhishingAnalysisAgent, PhishingAgentResult } from './agents/phishing
 import { runImpersonationAgent, ImpersonationResult } from './agents/impersonation';
 import { runClaimVerificationAgent, ClaimVerificationResult } from './agents/claim-verification';
 import { runRiskExplanationAgent, ExplanationAgentResult } from './agents/risk-explanation';
+import { officialVerificationEngine, OfficialVerificationResult } from '@/lib/official-verification';
 
 export interface PipelineStageEvent {
   stage: string;
@@ -32,6 +33,7 @@ export interface OrchestrationResult {
   phishingAgent: PhishingAgentResult;
   impersonationAgent: ImpersonationResult;
   claimAgent: ClaimVerificationResult;
+  officialVerification: OfficialVerificationResult;
   graphSignals: GraphSignal[];
   ragSources: TrustedSourceItem[];
   explanation: ExplanationAgentResult;
@@ -99,6 +101,9 @@ export class AIAgentOrchestrator {
     const impersonationAgent = runImpersonationAgent(input.content, extractedDomains);
     const claimAgent = runClaimVerificationAgent(input.content, ragSources);
 
+    recordStage('OFFICIAL_VERIFICATION', 'Verifying claims against statutory SEBI / RBI / NCRP registries');
+    const officialVerification = officialVerificationEngine.verifyContent(input.content, extractedDomains);
+
     // 6. Gemini Multimodal / Reasoning Call if configured
     let aiResponse = null;
     if (geminiProvider.isAvailable()) {
@@ -138,6 +143,7 @@ Strict rules:
       phishingAgent,
       impersonationAgent,
       claimAgent,
+      officialVerification,
       graphSignals,
       ragSources,
       explanation,

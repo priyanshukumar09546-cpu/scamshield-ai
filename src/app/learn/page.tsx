@@ -95,7 +95,7 @@ export default function LearnPage() {
                 <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline font-semibold">
                   cybercrime.gov.in
                 </a>{' '}
-                to freeze fraudulent transactions within the golden hour.
+                for immediate financial cyber-fraud assistance and transaction alert routing within the golden hour.
               </p>
             </div>
           </div>

@@ -57,4 +57,18 @@ Transfer immediately to continue earning daily salary!`,
     description: 'Standard informational bank statement alert with no scam indicators.',
     content: `Dear Customer, your monthly statement for savings account ending in XX4921 has been generated and sent to your registered email address. Remember, your bank never asks for your confidential OTP, NetBanking password or UPI PIN. For any queries, visit our official branch or website at https://hdfcbank.com.`,
   },
+  {
+    id: 'sample-6',
+    type: 'TEXT',
+    label: 'Sample 6: Hinglish 5x Guaranteed Return & OTP Scam',
+    description: 'Realistic Hinglish scam promising ₹50,000 from ₹10,000 and harvesting OTP.',
+    content: `Sir guaranteed return hai, ₹10,000 lagao aur 7 din me ₹50,000 milega. Verification ke liye OTP bhej do.`,
+  },
+  {
+    id: 'sample-7',
+    type: 'TEXT',
+    label: 'Sample 7: Hindi SEBI Certification & OTP Scam',
+    description: 'Hindi message claiming SEBI approval and demanding verification OTP.',
+    content: `नमस्ते सर, यह SEBI सर्टिफाइड ट्रेडिंग प्लान है। ₹5,000 निवेश करें और 7 दिन में ₹25,000 निश्चित मुनाफा पाएं। खाते के वेरिफिकेशन के लिए अभी आया हुआ OTP भेजें।`,
+  },
 ];
